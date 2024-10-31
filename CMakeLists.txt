@@ -32,7 +32,7 @@ find_program(GLSLANGVALIDATOR_EXECUTABLE NAMES glslangValidator PATHS $ENV{VULKA
 message(STATUS "Found glslangValidator: ${GLSLANGVALIDATOR_EXECUTABLE}")
 
 macro(compile_shader SHADER_SRC)
-    set(SHADER_SRC_FULLPATH ${CMAKE_CURRENT_SOURCE_DIR}/${SHADER_SRC})
+    set(SHADER_SRC_FULLPATH "${CMAKE_CURRENT_SOURCE_DIR}/src/${SHADER_SRC}")
 
     get_filename_component(SHADER_SRC_NAME_WE ${SHADER_SRC} NAME_WE)
     set(SHADER_SPV_HEX_FILE ${CMAKE_CURRENT_BINARY_DIR}/${SHADER_SRC_NAME_WE}.spv.hex.h)
@@ -133,7 +133,7 @@ endif()
 
 if(NOT USE_SYSTEM_NCNN)
     # build ncnn library
-    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/ncnn/CMakeLists.txt")
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/ncnn/CMakeLists.txt")
         message(FATAL_ERROR "The submodules were not downloaded! Please update submodules with \"git submodule update --init --recursive\" and try again.")
     endif()
 
@@ -228,11 +228,11 @@ if(NOT USE_SYSTEM_NCNN)
     option(WITH_LAYER_softplus "" OFF)
     option(WITH_LAYER_gelu "" ON)
 
-    add_subdirectory(ncnn)
+    add_subdirectory("src/ncnn")
 endif()
 
 if(USE_SYSTEM_WEBP)
-    set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
+    set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src")
     find_package(WebP)
     if(NOT TARGET webp)
         message(WARNING "webp target not found! USE_SYSTEM_WEBP will be turned off.")
@@ -242,7 +242,7 @@ endif()
 
 if(NOT USE_SYSTEM_WEBP)
     # build libwebp library
-    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libwebp/CMakeLists.txt")
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/libwebp/CMakeLists.txt")
         message(FATAL_ERROR "The submodules were not downloaded! Please update submodules with \"git submodule update --init --recursive\" and try again.")
     endif()
 
@@ -260,9 +260,9 @@ if(NOT USE_SYSTEM_WEBP)
     option(WEBP_NEAR_LOSSLESS "" OFF)
     option(WEBP_ENABLE_SWAP_16BIT_CSP "" OFF)
 
-    add_subdirectory(libwebp)
+    add_subdirectory("src/libwebp")
 
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libwebp/src)
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src/libwebp/src")
 endif()
 
 # look for vulkan compute shader and compile
@@ -275,7 +275,7 @@ compile_shader(realesrgan_postproc_tta.comp)
 
 add_custom_target(generate-spirv DEPENDS ${SHADER_SPV_HEX_FILES})
 
-add_executable(upscayl-bin main.cpp realesrgan.cpp)
+add_executable(upscayl-bin src/main.cpp src/realesrgan.cpp)
 
 add_dependencies(upscayl-bin generate-spirv)
 
